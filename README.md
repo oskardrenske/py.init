@@ -55,6 +55,7 @@ Jag har lagt till att testerna körs, att koden kollas och formatteras med Ruff 
 
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
 
+Du behöver köra git commit från en terminal i ett aktiverat venv, annars finns inte ruff och pytest.
 
 ### Test
 pytest installeras, test-exemplen använder Pytest-specifika detaljer.
@@ -97,8 +98,6 @@ Exempel:
 ```
 export MY_BOOL_VAR=False
 my_var = os.getenv(MY_BOOL_VAR)
-
-
 `.lower()`gör om strängen till lowercase.  
 `== "true"` jämför strängen med "true" för att kunna sätta variabeln till True eller False.  
 
