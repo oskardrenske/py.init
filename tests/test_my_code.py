@@ -23,14 +23,31 @@ def test_big_data(load_test_data):
     print(load_test_data)
 
 
-def test_compare_singletons(setup_and_teardown):
+def test_compare_none(setup_and_teardown):
     """
-    comparisions with True, False or None should be done with 'is' not with '==' (but it works with ==)
+    comparisions with None should be done with 'is'
     """
     test_data = "this is my test data"
     assert test_data is not None
     assert test_data is not False
-    assert test_data  # string with content is True, but it isn't the singelton True
+    assert test_data  # string with content is True, but it isn't the bool value True
+
+
+def test_compare_bool(setup_and_teardown):
+    """
+    comparisions with bool should be done without equal signs
+    """
+    my_bool_var = True
+    assert my_bool_var
+    # or
+    if my_bool_var:
+        print("OK")
+
+    # False
+    my_bool_var = False
+    assert not my_bool_var
+    if not my_bool_var:
+        print("It was False")
 
 
 def test_expected_error():
@@ -39,7 +56,7 @@ def test_expected_error():
         """
         using with pytest.raises(AssertionError) will swallow the AssertionError but will fail if an other 
         (or no exception at all) is raised.
-        The alternative would be a long try-except-except-else clause
+        The alternative would be a long "try-except Exception-else" clause
         """
         assert test_data == "hello world"
 
