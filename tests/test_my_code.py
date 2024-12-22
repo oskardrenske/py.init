@@ -1,4 +1,4 @@
-from src import my_code
+from my_code import my_code
 
 
 def test_something():
