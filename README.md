@@ -30,8 +30,10 @@ Fördjupning: https://realpython.com/python-virtual-environments-a-primer/
 ## Installation
 Installera UV.
 
-Sen finns det `make`-kommandon du kan använda. Kolla i `makefile`.
-Använder du terminalen i din IDE behöver du aktivera venv där med `source .venv/bin/activate` (Mac/Linux) eller ` .venv\Scripts\activate` (Windows=.
+Sen finns det `make`-kommandon du kan använda. Kolla i `makefile`.  
+`make install`sätter upp det mesta.
+
+Använder du terminalen i din IDE behöver du aktivera venv där med `source .venv/bin/activate` (Mac/Linux) eller ` .venv\Scripts\activate` (Windows).
 
 Kan du inte köra make-filer så får du köra dem ett och ett. 
 Aktivering av venv inifrån en makefile är lite speciellt, använd kommandot i förra stycket när du gör det i terminalen 
@@ -114,7 +116,7 @@ See comments in `my-code/__init__.py`
 
 ### type hints
 Python är otypat. Det finns dock "type hints" som ger tips om vilka typer som förväntas, och vilken typ som returneras. Det är dokumentation och en hjälp för din IDE att klaga om det är en annan typ.  
-Använd [Pydantic](https://docs.pydantic.dev/latest/) för faktisk validering
+Använd [Pydantic](https://docs.pydantic.dev/latest/) för faktisk validering, använd `isInstance`för att kolla typ (dvs kolla om objektet är en instans av en klass)
 
 ```
 def is_string(param:str)->bool:
@@ -125,6 +127,7 @@ def is_string(param:str)->bool:
 ### Environment variables
 Ifall du behöver såna
 skapa en fil som heter .env. Den skall INTE vara i versionshanteringen (stoppas av .gitignore-filen).  
+som kan läsas in av dotenv-bilioteket.
 
 
 Format i filen:
@@ -137,22 +140,9 @@ from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 ```
 
-Med miljövariabler, tänk på att MY_VAR = "False" gör att MY_VAR får en sträng och blir True vid en enkel jämförelse. 
+Med miljövariabler, tänk på att MY_VAR = "False" gör att MY_VAR får en sträng och blir True vid en enkel jämförelse. Exempel på hur boolska värden kan hanteras finns i `src/environment_variables.py`
 
 
-En miljövariabel som skall ha ett boolskt värde kräver nåt i den här stilen:
-```
-MY_BOOL_VAR = os.getenv("MY_BOOL_VAR", "").lower() == "true"
-```
-Förklaring
-`os.getenv("MY_BOOL_VAR", "")`hämtar MY_BOOL_VAR, default till tom sträng för att undvika att den blir None om variablen inte är satt.  
-Exempel:
-```
-export MY_BOOL_VAR=False
-my_var = os.getenv(MY_BOOL_VAR)
-`.lower()`gör om strängen till lowercase.  
-`== "true"` jämför strängen med "true" för att kunna sätta variabeln till True eller False.  
-```
 
 ### Annat du kan behöva:
 - http client: requests https://docs.python-requests.org/en/latest/index.html

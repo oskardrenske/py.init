@@ -6,6 +6,5 @@ def main():
     print(my_bool_env_var)
 
 
-isinstance
 if __name__ == "__main__":
     main()
