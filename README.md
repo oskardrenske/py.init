@@ -30,61 +30,15 @@ Fördjupning: https://realpython.com/python-virtual-environments-a-primer/
 ## Installation
 Installera UV.
 
-Kör sedan dessa kommandon i repo-rooten (på Windows aktiveras venv på annat sätt)
+Sen finns det `make`-kommandon du kan använda. Kolla i `makefile`.
+Använder du terminalen i din IDE behöver du aktivera venv där med `source .venv/bin/activate` (Mac/Linux) eller ` .venv\Scripts\activate` (Windows=.
 
-```
-uv venv
-source .venv/bin/activate
-uv sync
-pre-commit install
-```
+Kan du inte köra make-filer så får du köra dem ett och ett. 
+Aktivering av venv inifrån en makefile är lite speciellt, använd kommandot i förra stycket när du gör det i terminalen 
 
-### Output
-```
-$ uv venv
-Using CPython 3.12.2 interpreter at: /Library/Frameworks/Python.framework/Versions/3.12/bin/python3.12
-Creating virtual environment at: .venv
-Activate with: source .venv/bin/activate
-```
-
-Ett aktiverat venv syns på att projektnamnet står i (parantes)
-```
-$ source .venv/bin/activate
-(py.init) $ 
-```
-
-Nu installerar vi allt från uv.lock. Det är mycket mer än det som är definierat i pyproject-toml. Det är alla beroenden som behövs av det du vill använda.
-```
-(py.init) $ uv sync
-Resolved 19 packages in 10ms
-Installed 16 packages in 13ms
- + cfgv==3.4.0
- + distlib==0.3.9
- + filelock==3.16.1
- + identify==2.6.3
- + iniconfig==2.0.0
- + loguru==0.7.3
- + nodeenv==1.9.1
- + packaging==24.2
- + platformdirs==4.3.6
- + pluggy==1.5.0
- + pre-commit==4.0.1
- + pytest==8.3.4
- + python-dotenv==1.0.1
- + pyyaml==6.0.2
- + ruff==0.8.3
- + virtualenv==20.28.0
- ```
- 
- ```
-(py.init) $ pre-commit install
-pre-commit installed at .git/hooks/pre-commit
-(py.init) $ 
-```
-
-
+## Nya dependencies  
 Lägg till nya dependencies med `uv add`, de läggs till i pyproject.toml, uv.lock och installeras.
-`uv add requests` till exempel
+`uv add requests` till exempel.
 
 Det går att lägga till grupper så du slipper utvecklingsrelaterat (test, linter osv) i prod.
 
@@ -130,9 +84,10 @@ Behöver koden formatteras kommer commiten inte att gå igenom. Men nu är koden
 Pytest installeras, test-exemplen använder Pytest-specifika detaljer.
 Din IDE behöver configueras för vilken test runner du använder.
 kör testerna med `pytest -v -s`för att få ut all info. 
-Vill du ha test coverage finns pluginen [pytest-cov](https://pytest-cov.readthedocs.io/en/latest/index.html)
+Test coverage hanteras av [pytest-cov](https://pytest-cov.readthedocs.io/en/latest/index.html) som skriver ut i terminalen men även kan göra html-rapporter där du kan se vilken kod som täcks och inte täcks av testerna.
+
 #### Unittest
-En fördel med inbyggda `unittest`(som är en testrunner som du kan köra vilka testtyper du vill med) är att den har mocking inbyggd.
+En fördel med inbyggda `unittest`(som är en testrunner som du kan köra vilka testtyper du vill med) är att den har mocking inbyggd. Annars verkar [pytest-mock](https://pytest-mock.readthedocs.io/en/latest/) populär.
 
 ### Sökvägar och filhantering
 Använd `pathlib` istället för gamla `os.path`
@@ -220,3 +175,54 @@ Type "help", "copyright", "credits" or "license" for more information.
 ```
 
 Prova `import this`. Och som du ser finns det [hjälp-funktion](https://realpython.com/ref/builtin-functions/help/). Kan vara bra om du är offline.
+
+Saknar du braces så kan du köra `from __future__ import braces`
+
+### Make & pre-commit
+Det är lite duplicering mellan filerna. Det går att köra `make commit`från pre-commit och göra en del saker på det sättet, då blir det mer tillgängligt för användning ofta än om det bara finns i pre-commit. men det kräver installation av `make`om du inte har det. Anpassa som du vill och behöver. [Makefile Cookbook](https://makefiletutorial.com)
+
+### Semikolon
+Semikolon ignoreras av Python, upptäcks av linters och tas bort av formatters
+
+
+### Interaktiv programmering
+Du kan starta Python och skriva ditt program direkt. 
+```
+$ python
+Python 3.12.2 (v3.12.2:6abddd9f6a, Feb  6 2024, 17:02:06) [Clang 13.0.0 (clang-1300.0.29.30)] on darwin
+Type "help", "copyright", "credits" or "license" for more information.
+>>> print("hello world")
+hello world
+>>> foo = 42
+>>> foo
+42
+>>> print(foo)
+42
+>>> from __future__ import braces 
+  File "<stdin>", line 1
+SyntaxError: not a chance
+>>> import this
+The Zen of Python, by Tim Peters
+
+Beautiful is better than ugly.
+Explicit is better than implicit.
+Simple is better than complex.
+Complex is better than complicated.
+Flat is better than nested.
+Sparse is better than dense.
+Readability counts.
+Special cases aren't special enough to break the rules.
+Although practicality beats purity.
+Errors should never pass silently.
+Unless explicitly silenced.
+In the face of ambiguity, refuse the temptation to guess.
+There should be one-- and preferably only one --obvious way to do it.
+Although that way may not be obvious at first unless you're Dutch.
+Now is better than never.
+Although never is often better than *right* now.
+If the implementation is hard to explain, it's a bad idea.
+If the implementation is easy to explain, it may be a good idea.
+Namespaces are one honking great idea -- let's do more of those!
+>>> 
+```
+Avsluta Python-sessionen med `quit()`eller `Ctrl-d`
