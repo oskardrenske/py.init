@@ -8,12 +8,12 @@ Installera Python 3.12 om du inte har det redan.
 ### Varför inte pip?  
 Pip finns med i Python-installationen men har en del brister. Det duger för lite labbande, men:
 - pip är dåligt på konflikthantering. Det kan installera inkompatibla paket, jag har råkat ut för det, som tur var fanns det tester.
-- pip hanterar inte transienta beroenden. Det blir vad det blir när du kör det.
+- pip hanterar inte transienta beroenden. 
 - En del pip-problem har tidigare lösts med att ha andra program som skapar kompletta filer med alla transienta beroenden, men nu finns modernare sätt.
 - uv (liksom Poetry & pdm) har dina "top level"-beroenden (det du faktiskt vill använda) i en fil, och komplett lista av allt som behövs i en lock-fil. Inspirerat av Cargo i Rust (som uv är skrivet i). Det finns liknande i andra språk.
 
 ## pyproject.toml
-Används för lite av varje. Det du vill installera, regler för formatters & linters mm. Använd den istället för spridda .ini-filer som man gjorde förr. Ersätter också `setup.py`för att göra paket att distribuera.
+Används för lite av varje. Det du vill installera, regler för formatters & linters mm. Använd den istället för spridda config-filer som man gjorde förr. Ersätter också `setup.py`för att göra paket att distribuera.
 
 ## Virtual environments.
 Isolerade miljöer med den Python-version och de paket du vill ha installerade.
@@ -46,8 +46,9 @@ Det går att lägga till grupper så du slipper utvecklingsrelaterat (test, lint
 
 ### Linter & formatter
 `ruff` snabb med vettiga defaultvärden. 
-KOnfiguration av radlängd från default 88 till 120 finns i pyproject.toml
+Konfiguration av radlängd från default 88 till 120 finns i pyproject.toml
 https://docs.astral.sh/ruff/
+Alternativ: pylint, flake8 (linters), Black (formatter)
 
 ### pre-commit
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)  
@@ -85,11 +86,38 @@ Behöver koden formatteras kommer commiten inte att gå igenom. Men nu är koden
 #### Pytest
 Pytest installeras, test-exemplen använder Pytest-specifika detaljer.
 Din IDE behöver configueras för vilken test runner du använder.
-kör testerna med `pytest -v -s`för att få ut all info. 
+Pytest är konfigurerat i `pyproject.toml`att köra med args -v och -s för att få verbose output och inte "gömma" output till stdout. 
 Test coverage hanteras av [pytest-cov](https://pytest-cov.readthedocs.io/en/latest/index.html) som skriver ut i terminalen men även kan göra html-rapporter där du kan se vilken kod som täcks och inte täcks av testerna.
 
+Kommandot `make test`kör testerna med coverage:
+
+```
+pytest --cov . tests
+=============== test session starts =============== 
+platform darwin -- Python 3.12.2, pytest-8.3.4, pluggy-1.5.0 -- /Users/oskar/code/py.init/.venv/bin/python3
+cachedir: .pytest_cache
+rootdir: /Users/oskar/code/py.init
+configfile: pyproject.toml
+plugins: cov-6.0.0
+collected 28 items     
+
+... alla tester ...
+
+tests/test_validation.py::test_class_to_json PASSED
+---------- coverage: platform darwin, python 3.12.2-final-0 ----------
+Name                               Stmts   Miss  Cover
+------------------------------------------------------
+main.py                                6      6     0%
+my_code/__init__.py                    0      0   100%
+my_code/environment_variables.py      13     13     0%
+my_code/my_code.py                     2      0   100%
+my_code/my_validated_code.py          15      0   100%
+------------------------------------------------------
+TOTAL                                 36     19    47%
+```
+
 #### Unittest
-En fördel med inbyggda `unittest`(som är en testrunner som du kan köra vilka testtyper du vill med) är att den har mocking inbyggd. Annars verkar [pytest-mock](https://pytest-mock.readthedocs.io/en/latest/) populär.
+`unittest`(som är en testrunner som du kan köra vilka testtyper du vill med) följer med Python. Testerna skrivs lite annorlunda. Pytest kan köra Unittest-tester. Tvärtom går inte. 
 
 ### Sökvägar och filhantering
 Använd `pathlib` istället för gamla `os.path`
@@ -101,6 +129,8 @@ https://realpython.com/python-pathlib/
 from loguru import logger
 logger.info("log message)
 ```
+Eller så använder du det inbyggda `logging`
+
 
 ### Strängformattering
 `f-string`är enklast och läsbarast.
@@ -109,14 +139,22 @@ logger.debug(f"Environment variable {env_var_name} was {result}")
 ```
 
 ### __init__.py and code that runs automatically
-See comments in `my-code/__init__.py`
+See comments in `my_code/__init__.py`
 
 ### Kodkvalitet
 [xenon](https://github.com/rubik/xenon) körs som pre-commit check. Inställningen är att det inte får bli sämre än "A" (bäst) på de olika kategorierna. Vill du köra och titta på resultatet så installera [radon](https://radon.readthedocs.io/en/stable/intro.html). Skriver du mer komplex kod kanske du måste höja tröskeln för pre-commit checks, men det är väl bra att det är lite jobbigt att göra det?
 
 ### type hints
-Python är otypat. Det finns dock "type hints" som ger tips om vilka typer som förväntas, och vilken typ som returneras. Det är dokumentation och en hjälp för din IDE att klaga om det är en annan typ.  
-Använd [Pydantic](https://docs.pydantic.dev/latest/) för faktisk validering, använd `isInstance`för att kolla typ (dvs kolla om objektet är en instans av en klass)
+Python är otypat. Det finns dock "type hints" som ger tips om vilka typer som förväntas, och vilken typ som returneras. Det är dokumentation och en hjälp för din IDE att klaga om det är en annan typ.  Det hjälper också IDE:n att föreslå metoder som passar till typen.   
+Type hints-exempel för funktionsargument och returvärde:   
+```
+def my_func(text: str, number: int)->dict:
+```
+
+Använd [Pydantic](https://docs.pydantic.dev/latest/) för hård typning där det krävs. Det finns några enkla Pydantic-exempel. Kolla `tests/test_validation.py`. 
+ 
+
+Använd `isInstance`för att kolla typ (dvs kolla om objektet är en instans av en klass)
 
 ```
 def is_string(param:str)->bool:
@@ -140,39 +178,65 @@ from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 ```
 
-Med miljövariabler, tänk på att MY_VAR = "False" gör att MY_VAR får en sträng och blir True vid en enkel jämförelse. Exempel på hur boolska värden kan hanteras finns i `src/environment_variables.py`
+Med miljövariabler, tänk på att MY_VAR = "False" gör att MY_VAR får en sträng och blir True vid en enkel jämförelse. Exempel på hur boolska värden kan hanteras finns i `my_code/environment_variables.py`
 
 
 
 ### Annat du kan behöva:
 - http client: requests https://docs.python-requests.org/en/latest/index.html
-- api: FastApi https://fastapi.tiangolo.com
+- api: FastApi https://fastapi.tiangolo.com 
 - Databas ORM: SQLAlchemy https://www.sqlalchemy.org
+
+
+
 
 ### Tutorials
 https://realpython.com är generellt bra. 
 
 
+
 ### PEP 8 – Style Guide for Python Code
 https://peps.python.org/pep-0008/
 
-### Easter egg
+
+### IDE
+### JetBrains PyCharm / IDEA
+funkar generellt bra  
+men tillbringar väldigt mycket tid med att indexera din kod (och mycket funktionalitet försvinner under tiden)
+PyCharm klarar bara Python.
+Känns resurskrävande
+Bättre autocomplete. 
+
+### VSCode
+Sämre autocomplete. Förutom vid `def __init__(self):`i klasser lägger den inte till `self` till klassmetoder.  
+Paranteser som inte läggs till vid funktionsanrop så jag tilldelar variablen själva funktionen istället för resultatet av att köra funktionen.
+Känns lättviktigare
+Klarar olika programmeringsspråk (med rätt plugins)
+
+Det är nog mest en smaksak, är du van vid CSCode så använd den, samma om du är van vid JetBrains-produkter. Själv har jag mest kört JetBrains och vant mig vid och hittat vägar runt problem. 
+Nu har jag kört VSCode ett tag men det är alltid lite friktion innan man vant sig och hittat konfiguration. 
+
+
+
+
+### Easter eggs
 ```
 $ python
-Python 3.12.2 (v3.12.2:6abddd9f6a, Feb  6 2024, 17:02:06) [Clang 13.0.0 (clang-1300.0.29.30)] on darwin
-Type "help", "copyright", "credits" or "license" for more information.
 >>> import this
 ```
+Prova `import this`. Och som du ser när du startar Python (men inte i det avkortade exemplet ovan) finns det [hjälp-funktion](https://realpython.com/ref/builtin-functions/help/). Kan vara bra om du är offline.
 
-Prova `import this`. Och som du ser finns det [hjälp-funktion](https://realpython.com/ref/builtin-functions/help/). Kan vara bra om du är offline.
-
-Saknar du braces så kan du köra `from __future__ import braces`
+Saknar du { braces } kan du köra:
+```
+$ python
+>>>from __future__ import braces
+```
 
 ### Make & pre-commit
 Det är lite duplicering mellan filerna. Det går att köra `make commit`från pre-commit och göra en del saker på det sättet, då blir det mer tillgängligt för användning ofta än om det bara finns i pre-commit. men det kräver installation av `make`om du inte har det. Anpassa som du vill och behöver. [Makefile Cookbook](https://makefiletutorial.com)
 
 ### Semikolon
-Semikolon ignoreras av Python, upptäcks av linters och tas bort av formatters
+Semikolon vid radslut ignoreras av Python, upptäcks av linters och tas bort av formatters
 
 
 ### Interaktiv programmering
