@@ -11,6 +11,7 @@ dependencies = [
     "pytest>=8.3.4",
     "python-dotenv>=1.0.1",
     "ruff>=0.8.3",
+    "pydantic>=2.10.4",
 ]
 
 [tool.ruff]
@@ -22,3 +23,10 @@ omit = [
     ".*/",
     "tests/*",
     ]
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-sv"
+testpaths = [
+    "tests",
+    "integration",
+]

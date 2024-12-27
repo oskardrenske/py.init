@@ -18,10 +18,15 @@ install: clean setup_venv test
 activate_venv:
 	. .venv/bin/activate  # dot instead of source is make-specific
 
+git-pull:
+	git pull
+
+refresh: clean git-pull install
+
 
 setup_venv:
 	uv venv  # skapa venv
-	. .venv/bin/activate # aktivera venv
+	. .venv/bin/activate 
 	uv sync  # Installera dependencies från uv.lock
 	pre-commit install # konfigurera git hooks och installera 
 	
@@ -34,7 +39,7 @@ clean:
 
 # Kör tester med coverage (cov-report i terminalen)
 test:  activate_venv
-	pytest -v -s --cov . tests
+	pytest --cov . tests
 
 # köra ruff check
 lint: activate_venv
